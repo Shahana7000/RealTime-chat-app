@@ -1,9 +1,9 @@
 {
   "name": "nodeserver",
   "version": "1.0.0",
-  "description": "",
+  "description": "this is a node server for our iChat application",
   "license": "ISC",
-  "author": "shahana",
+  "author": "Shahana",
   "type": "commonjs",
   "main": "index.js",
   "scripts": {

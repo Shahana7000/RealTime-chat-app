@@ -1,39 +1,30 @@
-const express = require('express');
-const http = require('http');
-const socketIO = require('socket.io');
-const app = express();
-const server = http.createServer(app);
-const io = socketIO(server);
-const PORT = 8000;
+// node server which will handle socket.io
+const { createServer } = require('http');
+const io = require('socket.io')(createServer().listen(8000), {
+    cors: {
+        origin: "http://127.0.0.1:5500", 
+        methods: ["GET", "POST"]
+    }
+});
 
 const users = {};
 
-app.use(express.static('public')); // Serve frontend files
-
 io.on('connection', socket => {
-    console.log('New user connected');
-
-    // Save the new user's name
-    socket.on('new-user-join', name => {
+    socket.on('new-user-joined', name => {
+        console.log("new user joined", name);
         users[socket.id] = name;
         socket.broadcast.emit('user-joined', name);
     });
 
-    // Broadcast message with name
     socket.on('send', message => {
         socket.broadcast.emit('receive', {
             message: message,
-            user: users[socket.id]
-        });
+            name: users[socket.id]
+        })
     });
-
-    // User leaves
-    socket.on('disconnect', () => {
-        socket.broadcast.emit('user-left', users[socket.id]);
+    socket.on('disconnect', message => {
+        socket.broadcast.emit('left', users[socket.id])
         delete users[socket.id];
-    });
-});
 
-server.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT}`);
+});
 });
